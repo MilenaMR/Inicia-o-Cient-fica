@@ -1,0 +1,191 @@
+%% Integrate-and-Fire Model
+%%transduction model
+
+%%Sinusoids
+f=1; %% Frequencia [1,5,10,25,60,100]
+w=2*pi*f;
+k= 260; %% Amplitude 
+r1=0; %%retificação 1 da posição (positivo)
+r2=0;  %%retificação 2 da posição (negativo)
+i=1;
+
+%%Position
+for t= 0:0.001:10;
+    y=k*sin(w*t); %% Senoidal
+    if y >0 
+        r1(i)=y;  
+        r2(i)=0;
+    end
+    if y == 0 
+        r1(i)=0;  
+        r2(i)=0;
+    end
+    if y < 0 
+        r2(i)=abs(y);
+        r1(i)=0;
+    end
+    i=i+1;   
+end   
+
+t= 0:0.001:10;
+figure
+plot(t, r1 , 'b.-');
+title('posição | tempo');
+xlabel('t [s]');
+ylabel('r1 [10^-6 m]');
+grid on
+
+figure
+plot(t, r2 , 'b.-');
+title('posição | tempo');
+xlabel('t [s]');
+ylabel('r2 [10^-6 m]');
+grid on
+
+%%Diharmonic Stimuli
+%t= 0:0.01:1;
+a1=30; %% amplitude de baixa frequência[2-125] 
+a2=60; %% amplitude de alta frequência [2-100]
+fi = pi; %% fase [0,pi/2, pi, or 3*pi/2]
+v1=2*pi*90; %% frequência >100 Hz
+v2=2*pi*100; %% frequência 100 e 125 Hz
+t= 0:0.01:1;
+x = a1*sin(v1*t) + a2*sin(v2*t + fi); %% com v1<v2
+figure
+plot(t,x, 'b.-');
+title('posição diharmonica | tempo');
+xlabel('t [s]');
+ylabel('dx [10^-6 m]');
+grid on
+j=1;
+rd1=0; %%retificação 1 da posição da diharmonica (positivo)
+rd2=0; %%retificação 2 da posição da diharmonica (negativo)
+for t= 0:0.01:1;
+    x = a1*sin(v1*t) + a2*sin(v2*t + fi); %% com v1<v2
+    if x > 0 
+        rd1(j)=x;  
+        rd2(j)=0;
+    end
+    if x == 0 
+        rd1(j)=0;  
+        rd2(j)=0;
+    end
+    if x < 0 
+        rd2(j)=abs(x);
+        rd1(j)=0;
+    end
+    j=j+1;   
+end   
+
+t= 0:0.01:1;
+figure
+plot(t, rd1 , 'b.-');
+title('posição | tempo');
+xlabel('t [s]');
+ylabel('rd1 [10^-6 m]');
+grid on
+
+figure
+plot(t, rd2 , 'b.-');
+title('posição | tempo');
+xlabel('t [s]');
+ylabel('rd2 [10^-6 m]');
+grid on
+
+%%Velocity
+
+rv1=0:0.01:1; %%retificação 1 da velocidade (positivo)
+rv2=0:0.01:1; %%retificação 2 da velocidade (negativo)
+n=1;
+x = a1*sin(v1*t) + a2*sin(v2*t + fi); %% com v1<v2
+V= diff (x);
+
+for t= 0:0.01:1;
+    
+    if V(n) > 0 
+        rv1(n)= V(n);  
+        rv2(n)=0;
+    end
+    if V(n) == 0 
+        rv1(n)=0;  
+        rv2(n)=0;
+    end
+    if V(n) < 0 
+        rv2(n)=abs(V(n));
+        rv1(n)=0;
+    end
+    n=n+1;
+    if n>=101
+        break;
+    end    
+end   
+
+t= 0:0.01:1;
+figure
+plot(t, rv1 , 'b.-');
+title('Componente da Velocidade positiva | tempo');
+xlabel('t [s]');
+ylabel('rv1 [10^-6 m]');
+grid on
+
+figure
+plot(t, rv2 , 'b.-');
+title('Componente da Velocidade negativa| tempo');
+xlabel('t [s]');
+ylabel('rv2 [10^-6 m]');
+grid on
+
+%%Acceleration
+ra1=0:0.01:0.99; %%retificação 1 da velocidade (positivo)
+ra2=0:0.01:0.99; %%retificação 2 da velocidade (negativo)
+
+A= diff(V);
+n=1;
+t= 0:0.01:0.99;
+figure
+plot(t, A , 'b.-');
+for t= 0:0.01:0.99;   
+    if A(n) > 0 
+        rv1(n)= A(n);  
+        rv2(n)= 0;
+    end
+    if A(n) == 0 
+        rv1(n)= 0;  
+        rv2(n)= 0;
+    end
+    if A(n) < 0 
+        ra2(n)=abs(A(n));
+        ra1(n)=0;
+    end
+    n=n+1;   
+    if n>=100
+        break;
+    end 
+end   
+
+t= 0:0.01:0.99;
+figure
+plot(t, ra1 , 'b.-');
+title('Componente da Velocidade positiva | tempo');
+xlabel('t [s]');
+ylabel('ra1 [10^-6 m]');
+grid on
+
+figure
+plot(t, ra2 , 'b.-');
+title('Componente da Velocidade negativa| tempo');
+xlabel('t [s]');
+ylabel('ra2 [10^-6 m]');
+grid on
+
+ 
+%%weight
+w1
+w2
+w3
+w4
+w5
+w6
+
+sum = w1*rd1 +w2*rd2 + w3*rv1 + w4*rv2 + w5*ra1 + w6*ra2;
+

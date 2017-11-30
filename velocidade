@@ -1,0 +1,51 @@
+%% Velocidade 
+function [rv1,rv2] = velocidade(a1,a2,f1,f2,fi)
+
+rv1=0:0.001:10; %%Componente da velocidade (positiva)
+rv2=0:0.001:10; %%retificação compenente negativa da velocidade
+h=0.001; %% passos -> divisão do intervalo em que se está interessado
+% para a resolução do problema em n intervalos menores
+t= 0:0.001:10;
+
+v1 = 2*pi*f1;%% frequência >100 Hz
+v2 = 2*pi*f2; %% frequência 100 e 125 Hz
+
+%%Metodo de diferenças finitas
+x1menos= a1*sin(v1*(t-h)) + a2*sin(v2*(t-h) + fi); 
+x1mais = a1*sin(v1*(t+h)) + a2*sin(v2*(t+h) + fi); 
+i=1;
+divdoispassos= 1/(2*h);
+
+for t=0:0.001:10;   
+    velocidade= divdoispassos*(x1mais - x1menos);
+    if velocidade(i) > 0 
+        rv1(i)= velocidade(i);  
+        rv2(i)= 0;
+    end
+    if velocidade(i) == 0 
+        rv1(i)= 0;  
+        rv2(i)= 0;
+    end
+    if velocidade(i) < 0 
+        rv2(i)=abs(velocidade(i));
+        rv1(i)=0;
+    end
+    i=i+1;   
+    
+end   
+
+t= 0:0.001:10;
+% figure
+% plot(t, rv1 , 'b.-');
+% title('Componente da Velocidade positiva | tempo');
+% xlabel('t [s]');
+% ylabel('rv1 [10^-6 m]');
+% grid on
+% 
+% figure
+% plot(t, rv2 , 'b.-');
+% title('Componente da Velocidade negativa| tempo');
+% xlabel('t [s]');
+% ylabel('rv2 [10^-6 m]');
+% grid on
+end

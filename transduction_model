@@ -1,8 +1,14 @@
-%% Integrate-and-Fire Model
+
 %%transduction model
 
 %%Sinusoids
 %% Frequencia [1,5,10,25,60,100]
+% 1 -> 5-360 micrometro
+% 5 -> 1-180
+% 10 -> 2,5-130
+% 25 -> 0,4-10
+% 60 -> 0,1-170
+% 100 -> 0,5-130
 
 [sen_1, sen_2] = Senoide (260,5);
 % t= 0:0.001:10;
@@ -30,19 +36,33 @@
 % v2 frequência 100 e 125 Hz
 % x = a1*sin(v1*t) + a2*sin(v2*t + fi); %% com v1<v2
 % formato da função diharmonica(a1,a2,f1,f2,fi)
- 
+
+% t= 0:0.001:10;
+% Fs = 10000;            % Frequência de amostragem                     
+% T = 1 / Fs;             % Período de amostragem        
+% N = length (x);
+% f=(0:N-1)*Fs/N;
+ x = 80*sin(2*pi*100*t) + 0*sin(2*pi*100*t + pi); 
+% % X = fft(x);
+% %% nessa configuração temos uma onda de 50 Hz na entrada 
+figure
+plot( t,x , 'b.-');
+%title('Estímulo | tempo');
+xlabel('Tempo [s]');
+ylabel('Estímulo de vibratório [10^-6 m]');
+grid on
 
 t= 0:0.001:10;
-[dihar_1,dihar_2]=diharmonica(100,50,90,100,pi);
+[pos_1,pos_2]=diharmonica(80,0,100,100,pi);
 % figure
-% plot(t, dihar_1 , 'b.-');
+% plot(t, pos_1 , 'b.-');
 % title('posição | tempo');
 % xlabel('t [s]');
 % ylabel('rd1 [10^-6 m]');
 % grid on
 % 
 % figure
-% plot(t, dihar_2 , 'b.-');
+% plot(t, pos_2 , 'b.-');
 % title('posição (redificado)| tempo');
 % xlabel('t [s]');
 % ylabel('rd2 [10^-6 m]');
@@ -55,17 +75,17 @@ t= 0:0.001:10;
 % x1menos= a1*sin(v1*(t-h)) + a2*sin(v2*(t-h) + fi); 
 % x1mais = a1*sin(v1*(t+h)) + a2*sin(v2*(t+h) + fi); 
 % a função aceleração é definida por aceleracao(a1,a2,f1,f2,fi) 
-[acel_1,acel_2] = aceleracao(100,50,90,100,pi);
+[acc_1,acc_2] = aceleracao(80,0,100,100,pi);
 t= 0:0.001:10;
 % figure
-% plot(t, acel_1, 'b.-');
+% plot(t, acc_1, 'b.-');
 % title('Componente da Aceleração positiva | tempo');
 % xlabel('t [s]');
 % ylabel('ra1 [10^-6 m]');
 % grid on
 % 
 % figure
-% plot(t, acel_2 , 'b.-');
+% plot(t, acc_2 , 'b.-');
 % title('Componente da Aceleração negativa (redificado)| tempo');
 % xlabel('t [s]');
 % ylabel('ra2 [10^-6 m]');
@@ -74,17 +94,17 @@ t= 0:0.001:10;
 %% Velocidade 
 %% forma da função velocidade(a1,a2,f1,f2,fi)
 
-[velos_1,velos_2]=velocidade(100,50,90,100,pi);
+[vel_1,vel_2]=velocidade(80,0,100,100,pi);
 t= 0:0.001:10;
 % figure
-% plot(t, velos_1 , 'b.-');
+% plot(t, vel_1 , 'b.-');
 % title('Componente da Velocidade positiva | tempo');
 % xlabel('t [s]');
 % ylabel('rv1 [10^-6 m]');
 % grid on
 % 
 % figure
-% plot(t, velos_2 , 'b.-');
+% plot(t, vel_2 , 'b.-');
 % title('Componente da Velocidade negativa (redificado)| tempo');
 % xlabel('t [s]');
 % ylabel('rv2 [10^-6 m]');
@@ -93,7 +113,7 @@ t= 0:0.001:10;
 % %% Filtragem Passa Faixa
 %% Estímulos de ruído bandpass.
 
-%%Cada estímulo de ruído foi dimensionado para um conjunto de amplitudes de rms predeterminadas 0.5, 1, 5, 10 e 50 μm.
+%%Cada estímulo de ruído foi dimensionado para um conjunto de amplitudes de rms predeterminadas 0.5, 1, 5, 10 e 50 ?m.
 Sinal_ruido1 = 0.5*randn(10000,1); %% sinal aleatório
 Sinal_ruido2 = randn(10000,1);
 Sinal_ruido3 = 5*randn(10000,1);
@@ -104,7 +124,7 @@ Sinal_ruido5 = 50*randn(10000,1);
 % alta freqência de 10,25,50 e 100 Hz
 %%Fs = 10000; %%frequencia de amostragem 
 %%frequência de Nyquist (Fs/2)=5000
-PassaFaixa= fir1(100,[0.001 0.002],'bandpass'); %%especifica um filtro de ordem 4. Wn1=5Hz e Wn2=100
+PassaFaixa= fir1(4,[0.001 0.002],'bandpass'); %%especifica um filtro de ordem . Wn1=5Hz e Wn2=100
 % a=1; %%denominador da função de transferência 
 Sinal_1_filt = filter(PassaFaixa,1,Sinal_ruido1);
 Sinal_2_filt = filter(PassaFaixa,1,Sinal_ruido2);
@@ -115,26 +135,69 @@ Sinal_5_filt = filter(PassaFaixa,1,Sinal_ruido5);
 l=sqrt(mean(Sinal_ruido1.^2));
 l_liha=sqrt(mean(Sinal_1_filt.^2));
 
-figure
-plot(Sinal_1_filt);
-figure
-pwelch(Sinal_1_filt,[],[],[]);
+%%figure
+%%plot(Sinal_1_filt);
+%%figure
+%%pwelch(Sinal_1_filt,[],[],[]);
+
+
+% 
+%% weight
+%% Para frequencia de 100 Hz
+w1= 0.129; %1.1/8.5;
+w2= 0.129; %1.1/8.5;
+w3= 0.306; %2.6/8.5;
+w4= 0.306; %2.6/8.5;
+w5= 0.612; % 5.2/8.5;
+w6= 0.612; % 5.2/8.5;
+% somas ponderadas das componentes dos sinais
+s = (w1 * pos_1) + (w2 * pos_2) + (w3 * vel_1) + (w4* vel_2) + (w5 * acc_1) + (w6 * acc_2);
+t= 0:0.001:10;
+figure 
+plot (t,s,'linewidth',2);
+
+%% A soma das componentes é filtrada 
+%  
+%%To model saturation effects
+I_0 = 2*(10^-3); % é o parametro de saturação em nA
+
+[Saida] = Saturacao (s) * (10^3) ;
+t = 0:0.001:10;
+figure 
+plot (t,Saida,'linewidth',2); 
+%title('Corrente de saída do processo da transdução | tempo');
+xlabel('tempo [s]');
+ylabel('Corrente de saída do processo da transdução [10^-9 A]');
+%grid on
+
+%% Integrate-and-Fire Model
+% modelo de geração de potenciais de ação
+
+% V(t) = decusor temporal do potencial de membrana
+Vrest= -70*(10^-3); % (V) - potencial de repouso
+C = 150*(10^-12); % (F) - capacitÂncia de membrana
+Teta_infinito = -30*(10^-3); %(V) - limiar de equilíbrio
+b = 10; % (1/s) - constante de tempo de rebote do limiar 
+
+% constante de tempo da membrana (tal)
+% a = constante de tempo de adaptação
+%I(t)= saída do modelo de transdução 
+
+I= Saida; 
+tal_0 = 5*(10^-3); %% constante de tempo mais rápida
+tal_1 = 50*(10^-3); %%constante de tempo mais lenta
+
+%di_0/dt = -i_0 / tal_0;
+%di_1/dt = -i_1 / tal_1;
+
+%Iind = i_0 + i_1;
+%i_0 = i_0 + A_0;
+%i_1 = i_1 + A_1;
+
+%t= 0:0.001:10;
+%dV/dt = (-1)*(v-Vrest)/ tal + (1/C)*(I+Iind);
 
 % 
 % 
-
 % 
-% %% weight
-% % w1
-% % w2
-% % w3
-% % w4
-% % w5
-% % w6
-%  %% somas ponderadas das componentes dos sinais
-% % s = w1*rd1 +w2*rd2 + w3*rv1 + w4*rv2 + w5*ra1 + w6*ra2;
-% 
-% %% A soma das componentes é filtrada 
-% %%
-% 
-% 
+ 
